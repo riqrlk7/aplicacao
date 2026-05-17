@@ -2,7 +2,7 @@
 
 import { useState, useEffect, ChangeEvent, FormEvent, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
-import { ChevronRight, Upload, CheckCircle2, AlertCircle, RefreshCw, Copy, Check, Heart, Gift, X } from 'lucide-react';
+import { ChevronRight, Upload, CheckCircle2, AlertCircle, RefreshCw, Copy, Check, Heart, Gift, X, Search } from 'lucide-react';
 
 interface RifaTicket {
   numero: number;
@@ -88,6 +88,90 @@ export default function RifaPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Consult bookings state
+  const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
+  const [consultPhone, setConsultPhone] = useState('');
+  const [consultLoading, setConsultLoading] = useState(false);
+  const [consultError, setConsultError] = useState('');
+  const [consultSearched, setConsultSearched] = useState(false);
+  const [consultResults, setConsultResults] = useState<{
+    nome: string;
+    status: string;
+    tickets: number[];
+  }[]>([]);
+
+  const handleConsultBookings = async (e: FormEvent) => {
+    e.preventDefault();
+    const cleanPhone = consultPhone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      setConsultError('Por favor, insira um número de telefone válido.');
+      return;
+    }
+
+    setConsultLoading(true);
+    setConsultError('');
+    setConsultSearched(true);
+    setConsultResults([]);
+
+    try {
+      // 1. Fetch buyers matching the phone
+      const { data: buyers, error: buyersError } = await supabase
+        .from('rifa_compradores')
+        .select('id, nome, status')
+        .eq('telefone', cleanPhone);
+
+      if (buyersError) throw buyersError;
+
+      if (!buyers || buyers.length === 0) {
+        setConsultResults([]);
+        return;
+      }
+
+      // 2. Fetch numbers associated with those buyers
+      const buyerIds = buyers.map((b) => b.id);
+      const { data: tickets, error: ticketsError } = await supabase
+        .from('rifa_numeros')
+        .select('numero, comprador_id')
+        .in('comprador_id', buyerIds);
+
+      if (ticketsError) throw ticketsError;
+
+      // 3. Map tickets to their respective buyers
+      const results = buyers.map((b) => {
+        const buyerTickets = (tickets || [])
+          .filter((t) => t.comprador_id === b.id)
+          .map((t) => t.numero)
+          .sort((a, b) => a - b);
+        return {
+          nome: b.nome,
+          status: b.status,
+          tickets: buyerTickets,
+        };
+      });
+
+      setConsultResults(results);
+    } catch (err: any) {
+      console.error(err);
+      setConsultError('Erro ao buscar reservas: ' + (err.message || 'Erro inesperado.'));
+    } finally {
+      setConsultLoading(false);
+    }
+  };
+
+  const handleConsultPhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.substring(0, 11);
+
+    if (value.length > 7) {
+      value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+    } else if (value.length > 2) {
+      value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+    } else if (value.length > 0) {
+      value = `(${value}`;
+    }
+    setConsultPhone(value);
   };
 
   const handleSelectNumber = (num: number) => {
@@ -332,6 +416,21 @@ export default function RifaPage() {
               <span>Escolher meus números</span>
               <ChevronRight className="w-4 h-4" />
             </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setConsultPhone('');
+                setConsultError('');
+                setConsultSearched(false);
+                setConsultResults([]);
+                setIsConsultModalOpen(true);
+              }}
+              className="w-full mt-3 bg-neutral-900/60 border border-white/5 hover:border-emerald-500/20 hover:text-emerald-400 text-neutral-300 font-bold py-3 px-6 rounded-2xl transition-all flex items-center justify-center gap-1.5 text-xs uppercase tracking-wider active:scale-[0.98]"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span>Ver Meus Números Reservados</span>
+            </button>
             
             <span className="block text-[10px] text-neutral-500 text-center mt-3">
               {TOTAL_NUMBERS} cotas disponíveis • Sorteio após preencher todas
@@ -550,20 +649,20 @@ export default function RifaPage() {
                 Participação Enviada!
               </h2>
               <p className="text-neutral-300 text-xs md:text-sm leading-relaxed mb-5">
-                Sua cota está reservada como <strong className="text-[#c5a059]">Pendente</strong>. O administrador irá confirmar o Pix e aprovar os seus números em breve! Obrigado pelo apoio! ❤️
+                Sua cota está reservada como <strong className="text-[#10b981]">Pendente</strong>. O administrador irá confirmar o Pix e aprovar os seus números em breve! Obrigado pelo apoio! ❤️
               </p>
               <div className="bg-black/30 border border-white/5 rounded-2xl p-4 text-left mb-6 text-xs">
                 <p className="mb-1.5 text-neutral-400"><strong>Nome:</strong> <span className="text-white font-medium">{name}</span></p>
                 <p className="mb-1.5 text-neutral-400"><strong>Telefone:</strong> <span className="text-white font-medium">{phone}</span></p>
                 <p className="mb-1.5 text-neutral-400">
                   <strong>Números ({selectedNumbers.length}):</strong>{' '}
-                  <span className="text-[#c5a059] font-bold">{selectedNumbers.map(formatTicketNumber).join(', ')}</span>
+                  <span className="text-[#10b981] font-bold">{selectedNumbers.map(formatTicketNumber).join(', ')}</span>
                 </p>
                 <p className="text-neutral-400"><strong>Comprovante:</strong> <span className="text-emerald-400 font-mono text-[10px] truncate block mt-0.5">{receiptFile?.name}</span></p>
               </div>
               <button
                 onClick={handleCloseModal}
-                className="w-full bg-[#c5a059] hover:bg-[#e5c483] text-black font-semibold py-3 px-6 rounded-xl transition-all text-xs"
+                className="w-full bg-[#10b981] hover:bg-[#34d399] text-black font-semibold py-3 px-6 rounded-xl transition-all text-xs"
               >
                 Fechar janela
               </button>
@@ -587,7 +686,7 @@ export default function RifaPage() {
                   <span className="text-[10px] text-neutral-500 uppercase font-bold block">Números Selecionados</span>
                   <div className="flex flex-wrap gap-1 mt-1 max-h-[30px] overflow-y-auto pr-1">
                     {selectedNumbers.map(formatTicketNumber).map((item) => (
-                      <span key={item} className="text-[10px] bg-[#c5a059]/10 text-[#c5a059] px-1.5 py-0.5 rounded font-bold border border-[#c5a059]/15">
+                      <span key={item} className="text-[10px] bg-[#10b981]/10 text-[#10b981] px-1.5 py-0.5 rounded font-bold border border-[#10b981]/15">
                         {item}
                       </span>
                     ))}
@@ -595,7 +694,7 @@ export default function RifaPage() {
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] text-neutral-500 uppercase font-bold block">Valor Total</span>
-                  <span className="font-bold text-[#c5a059] text-sm font-display mt-0.5 block">
+                  <span className="font-bold text-[#34d399] text-sm font-display mt-0.5 block">
                     R$ {totalAmount.toFixed(2).replace('.', ',')}
                   </span>
                 </div>
@@ -610,7 +709,7 @@ export default function RifaPage() {
                   className={`w-full font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     copied
                       ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20'
-                      : 'bg-[#c5a059] hover:bg-[#e5c483] text-black shadow-lg shadow-[#c5a059]/10'
+                      : 'bg-[#10b981] hover:bg-[#34d399] text-black shadow-lg shadow-[#10b981]/10'
                   }`}
                 >
                   {copied ? (
@@ -641,7 +740,7 @@ export default function RifaPage() {
                     placeholder="Digite seu nome completo"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-black/40 border border-white/5 rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none focus:border-[#c5a059] transition-all"
+                    className="w-full bg-black/40 border border-white/5 rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none focus:border-[#10b981] transition-all"
                   />
                 </div>
 
@@ -654,7 +753,7 @@ export default function RifaPage() {
                     placeholder="(11) 99999-9999"
                     value={phone}
                     onChange={handlePhoneChange}
-                    className="w-full bg-black/40 border border-white/5 rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none focus:border-[#c5a059] transition-all"
+                    className="w-full bg-black/40 border border-white/5 rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none focus:border-[#10b981] transition-all"
                   />
                 </div>
 
@@ -668,7 +767,7 @@ export default function RifaPage() {
                       onChange={handleFileChange}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
-                    <div className="w-full bg-black/40 border border-dashed border-white/10 rounded-xl px-3.5 py-3.5 text-center flex flex-col items-center gap-1.5 hover:border-[#c5a059] transition-all">
+                    <div className="w-full bg-black/40 border border-dashed border-white/10 rounded-xl px-3.5 py-3.5 text-center flex flex-col items-center gap-1.5 hover:border-[#10b981] transition-all">
                       <Upload className="w-4.5 h-4.5 text-neutral-400" />
                       <span className="text-[11px] text-neutral-200 font-medium truncate max-w-full">
                         {receiptFile ? receiptFile.name : 'Selecionar comprovante'}
@@ -681,7 +780,7 @@ export default function RifaPage() {
                   <button
                     type="submit"
                     disabled={submitting || selectedNumbers.length === 0 || !name || phone.length < 14 || !receiptFile}
-                    className="w-full bg-[#c5a059] hover:bg-[#e5c483] disabled:bg-neutral-800 disabled:text-neutral-500 text-black font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs shadow-lg active:scale-98 uppercase tracking-wider"
+                    className="w-full bg-[#10b981] hover:bg-[#34d399] disabled:bg-neutral-800 disabled:text-neutral-500 text-black font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs shadow-lg active:scale-98 uppercase tracking-wider"
                   >
                     {submitting ? (
                       <>
@@ -703,6 +802,106 @@ export default function RifaPage() {
               </form>
             </div>
           )}
+
+        </div>
+      </div>
+
+      {/* CONSULT BOOKINGS MODAL */}
+      <div className={`fixed inset-0 z-[100] bg-black/90 backdrop-blur-[10px] flex items-center justify-center p-4 transition-all duration-300 ${
+        isConsultModalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      }`}>
+        
+        {/* MODAL WINDOW */}
+        <div className={`bg-[#090909] border border-white/10 rounded-3xl w-full max-w-[440px] p-6 relative transform transition-transform duration-300 shadow-2xl ${
+          isConsultModalOpen ? 'scale-100' : 'scale-95'
+        }`}>
+          
+          <button 
+            onClick={() => setIsConsultModalOpen(false)} 
+            className="absolute top-4 right-4 text-neutral-400 hover:text-white p-1 rounded-xl hover:bg-white/5 transition-all"
+          >
+            <X className="w-4.5 h-4.5" />
+          </button>
+
+          <div>
+            <h2 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+              <Search className="w-5 h-5 text-[#10b981]" />
+              <span>Consultar Meus Números</span>
+            </h2>
+            <p className="text-neutral-400 text-xs mb-4">Insira o número de celular utilizado na reserva para ver as suas cotas.</p>
+
+            {consultError && (
+              <div className="bg-red-950/10 border border-red-500/20 text-red-200 rounded-xl p-3 mb-4 flex gap-2 items-start text-xs shadow-lg">
+                <AlertCircle className="w-4.5 h-4.5 text-red-500 shrink-0 mt-0.5" />
+                <span>{consultError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleConsultBookings} className="space-y-4 mb-4">
+              <div>
+                <label htmlFor="consult-phone" className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1.5">Telefone / WhatsApp</label>
+                <div className="flex gap-2">
+                  <input
+                    id="consult-phone"
+                    type="tel"
+                    required
+                    placeholder="(11) 99999-9999"
+                    value={consultPhone}
+                    onChange={handleConsultPhoneChange}
+                    className="flex-1 bg-black/40 border border-white/5 rounded-xl px-3.5 py-2.5 text-white text-xs focus:outline-none focus:border-[#10b981] transition-all"
+                  />
+                  <button
+                    type="submit"
+                    disabled={consultLoading || consultPhone.length < 14}
+                    className="bg-[#10b981] hover:bg-[#34d399] disabled:bg-neutral-800 disabled:text-neutral-500 text-black font-bold px-5 rounded-xl transition-all text-xs flex items-center justify-center gap-1.5 active:scale-95"
+                  >
+                    {consultLoading ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <span>Buscar</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            {/* RESULTS VIEW */}
+            {consultSearched && !consultLoading && (
+              <div className="border-t border-white/5 pt-4 max-h-[250px] overflow-y-auto pr-1">
+                {consultResults.length === 0 ? (
+                  <div className="text-center py-6 text-neutral-400 text-xs">
+                    <p className="mb-1 font-semibold">Nenhuma reserva encontrada.</p>
+                    <p className="text-[10px] text-neutral-500">Verifique o telefone ou faça uma nova reserva no grid!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3.5">
+                    <h3 className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Reservas Encontradas</h3>
+                    {consultResults.map((result, idx) => (
+                      <div key={idx} className="bg-black/30 border border-white/5 rounded-2xl p-4 text-xs">
+                        <div className="flex justify-between items-center mb-2.5">
+                          <span className="font-semibold text-white truncate max-w-[180px]">{result.nome}</span>
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider ${
+                            result.status === 'confirmado'
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                          }`}>
+                            {result.status === 'confirmado' ? 'Confirmado' : 'Pendente'}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {result.tickets.map((num) => (
+                            <span key={num} className="text-[10px] bg-[#10b981]/10 text-[#10b981] px-2 py-0.5 rounded-md font-mono font-bold border border-[#10b981]/15">
+                              {formatTicketNumber(num)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
         </div>
       </div>
