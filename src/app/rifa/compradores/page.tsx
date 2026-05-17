@@ -181,7 +181,7 @@ export default function AdminPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#020202] text-neutral-100 font-sans p-6 md:p-12 relative selection:bg-[#10b981] selection:text-black">
+    <main className="min-h-screen bg-[#020202] text-neutral-100 font-sans p-6 md:p-12 relative selection:bg-[#10b981] selection:text-black select-none">
       {/* Subtle Grain Overlay */}
       <div 
         className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.025]"

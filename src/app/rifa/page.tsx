@@ -329,7 +329,7 @@ export default function RifaPage() {
   const totalAmount = selectedNumbers.length * PRICE_PER_NUMBER;
 
   return (
-    <main className="min-h-screen bg-[#020202] text-neutral-100 font-sans pb-36 selection:bg-[#c5a059] selection:text-black relative">
+    <main className="min-h-screen bg-[#020202] text-neutral-100 font-sans pb-36 selection:bg-[#10b981] selection:text-black relative select-none">
       {/* Subtle Grain Overlay */}
       <div 
         className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.025]"
