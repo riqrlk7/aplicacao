@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #080808;
+  --color-background-secondary: #0A0A0A;
+  --color-surface: #111111;
+  --color-surface-elevated: #161616;
+  
+  --color-foreground: #EFEFEF;
+  --color-foreground-secondary: #888888;
+  --color-muted: #404040;
+  --color-phantom: #222222;
+  
+  --color-accent: #2563EB;
+  --color-accent-hover: #3B82F6;
+  --color-status-green: #22C55E;
+  --color-alert-amber: #F59E0B;
+  
+  --color-border-subtle: rgba(255, 255, 255, 0.03);
+  --color-border-medium: rgba(255, 255, 255, 0.06);
+  --color-border-active: rgba(255, 255, 255, 0.12);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: "Outfit", sans-serif;
+
+  --shadow-cinematic: 0 40px 100px rgba(0, 0, 0, 0.8);
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans antialiased overflow-x-hidden selection:bg-accent selection:text-white;
+    line-height: 1.7;
+    position: relative;
+    isolation: isolate;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight text-foreground;
+  }
+}
+
+@layer utilities {
+  .cinematic-container {
+    @apply max-w-7xl mx-auto px-6 md:px-12 lg:px-20;
+  }
+  
+  .cinematic-section {
+    @apply py-32 md:py-48;
+  }
+
+  .radial-glow {
+    background: radial-gradient(circle at center, var(--color-accent) 0%, transparent 70%);
+  }
+
+  .glass-panel {
+    @apply bg-surface/40 backdrop-blur-xl border border-border-medium;
+  }
+
+  .glass-card {
+    @apply bg-surface/60 backdrop-blur-2xl border border-border-medium shadow-cinematic;
+  }
+
+  /* Vinette */
+  .cinematic-vinette {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0,0,0,0.4) 100%);
+  }
+
+  /* Scanlines for UI Elements */
+  .scanline-overlay {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.015) 3px
+    );
+    background-size: 100% 3px;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.05; transform: scale(1); }
+  50% { opacity: 0.1; transform: scale(1.1); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 8s ease-in-out infinite;
+}
+
+@keyframes scan {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100%); }
+}
+
+.animate-scan {
+  animation: scan 10s linear infinite;
+}
+
+/* Active Grain Filter Layer */
+.active-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  opacity: 0.035;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
