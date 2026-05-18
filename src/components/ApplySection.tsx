@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface FormData {
   // Step 1
@@ -62,6 +63,7 @@ const ApplySection = () => {
   const [step, setStep] = useState<number>(0); // 0: Call to Action, 1-5: Steps, 6: Success
   const [data, setData] = useState<FormData>(initialData);
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const updateField = (fields: Partial<FormData>) => {
     setData((prev) => ({ ...prev, ...fields }));
@@ -124,11 +126,45 @@ const ApplySection = () => {
     setStep((prev) => Math.max(0, prev - 1));
   };
 
-  const handleSubmit = () => {
-    if (validateStep()) {
-      // Simulate API submit
+  const handleSubmit = async () => {
+    if (!validateStep()) return;
+    setLoading(true);
+    setError("");
+
+    try {
+      const { error: dbError } = await supabase
+        .from("vertice_applications")
+        .insert([{
+          nome: data.nome,
+          instagram: data.instagram,
+          nicho: data.nicho,
+          cidade: data.cidade,
+          whatsapp: data.whatsapp,
+          trabalha_sozinho: data.trabalhaSozinho,
+          possui_equipe: data.equipe,
+          possui_produtos: data.produtos,
+          ticket_atual: data.ticketAtual,
+          faturamento_mensal: data.faturamento,
+          maior_gargalo: data.gargalo,
+          diferencial: data.diferencial,
+          transformacao: data.transformacao,
+          falta_estruturar: data.faltaEstruturar,
+          disponibilidade_operacional: data.disponibilidadeOperacional === "Sim",
+          objetivos_12_meses: data.visao,
+          aceita_direcao: data.direcaoEstrategica === "Sim",
+          disposto_processos: data.processosConsistencia === "Sim",
+          busca: data.buscaAtual
+        }]);
+
+      if (dbError) throw dbError;
+
       setStep(6);
       document.getElementById("apply-section")?.scrollIntoView({ behavior: "smooth" });
+    } catch (err: any) {
+      console.error("Erro ao salvar aplicação:", err);
+      setError(err.message || "Erro de conexão ao salvar a aplicação. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -785,15 +821,21 @@ const ApplySection = () => {
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="w-1/3 py-4 text-[11px] uppercase tracking-[0.2em] font-mono text-[#7A7A7A] hover:text-[#F5F5F5] transition-colors bg-transparent border border-white/5 rounded-sm hover:border-white/10 cursor-pointer"
+            disabled={loading}
+            className={`w-1/3 py-4 text-[11px] uppercase tracking-[0.2em] font-mono text-[#7A7A7A] transition-colors bg-transparent border border-white/5 rounded-sm ${
+              loading ? "opacity-30 cursor-not-allowed" : "hover:text-[#F5F5F5] hover:border-white/10 cursor-pointer"
+            }`}
           >
             Voltar
           </button>
           <button
             onClick={onNext}
-            className="flex-1 py-4 text-[11px] uppercase tracking-[0.2em] font-mono text-white bg-[#245BFF] border border-[#245BFF]/40 rounded-sm hover:bg-[#245BFF]/90 transition-all duration-300 cursor-pointer text-center font-medium shadow-[0_0_15px_rgba(36,91,255,0.2)]"
+            disabled={loading}
+            className={`flex-1 py-4 text-[11px] uppercase tracking-[0.2em] font-mono text-white bg-[#245BFF] border border-[#245BFF]/40 rounded-sm transition-all duration-300 text-center font-medium shadow-[0_0_15px_rgba(36,91,255,0.2)] ${
+              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-[#245BFF]/90 cursor-pointer"
+            }`}
           >
-            {nextLabel}
+            {loading ? "Enviando..." : nextLabel}
           </button>
         </div>
       </div>
