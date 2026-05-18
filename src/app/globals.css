@@ -1,35 +1,35 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #080808;
-  --color-background-secondary: #0A0A0A;
-  --color-surface: #111111;
-  --color-surface-elevated: #161616;
+  --color-background: #050505;
+  --color-background-secondary: #080808;
+  --color-surface: #0a0a0a;
+  --color-surface-elevated: #101010;
   
-  --color-foreground: #EFEFEF;
-  --color-foreground-secondary: #888888;
+  --color-foreground: #F5F5F5;
+  --color-foreground-secondary: #7A7A7A;
   --color-muted: #404040;
-  --color-phantom: #222222;
+  --color-phantom: #1a1a1a;
   
-  --color-accent: #2563EB;
-  --color-accent-hover: #3B82F6;
+  --color-accent: #245BFF;
+  --color-accent-hover: #5480FF;
   --color-status-green: #22C55E;
   --color-alert-amber: #F59E0B;
   
   --color-border-subtle: rgba(255, 255, 255, 0.03);
-  --color-border-medium: rgba(255, 255, 255, 0.06);
-  --color-border-active: rgba(255, 255, 255, 0.12);
+  --color-border-medium: rgba(255, 255, 255, 0.05);
+  --color-border-active: rgba(255, 255, 255, 0.10);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: "Outfit", sans-serif;
 
-  --shadow-cinematic: 0 40px 100px rgba(0, 0, 0, 0.8);
+  --shadow-cinematic: 0 40px 100px rgba(0, 0, 0, 0.9);
 }
 
 @layer base {
   body {
-    @apply bg-background text-foreground font-sans antialiased overflow-x-hidden selection:bg-accent selection:text-white;
+    @apply bg-background text-foreground font-sans antialiased overflow-x-hidden selection:bg-accent/30 selection:text-white;
     line-height: 1.7;
     position: relative;
     isolation: isolate;
@@ -61,13 +61,21 @@
     @apply bg-surface/60 backdrop-blur-2xl border border-border-medium shadow-cinematic;
   }
 
+  /* Architectural Grid */
+  .bg-grid-pattern {
+    background-size: 60px 60px;
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+  }
+
   /* Vinette */
   .cinematic-vinette {
     position: fixed;
     inset: 0;
     z-index: 9999;
     pointer-events: none;
-    background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0,0,0,0.4) 100%);
+    background: radial-gradient(ellipse at 50% 50%, transparent 60%, rgba(0,0,0,0.5) 100%);
   }
 
   /* Scanlines for UI Elements */
@@ -76,19 +84,19 @@
       0deg,
       transparent,
       transparent 2px,
-      rgba(255, 255, 255, 0.015) 3px
+      rgba(255, 255, 255, 0.01) 3px
     );
     background-size: 100% 3px;
   }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.05; transform: scale(1); }
-  50% { opacity: 0.1; transform: scale(1.1); }
+  0%, 100% { opacity: 0.03; transform: scale(1); }
+  50% { opacity: 0.06; transform: scale(1.08); }
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 8s ease-in-out infinite;
+  animation: pulse-glow 10s ease-in-out infinite;
 }
 
 @keyframes scan {
@@ -105,7 +113,7 @@
   position: absolute;
   inset: 0;
   z-index: 5;
-  opacity: 0.035;
+  opacity: 0.02;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }

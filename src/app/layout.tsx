@@ -16,6 +16,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "VÉRTICE | O bastidor define o resultado.",
   description: "Engenharia de bastidor para experts e marcas premium. Estruturamos operações invisíveis para resultados absolutos.",
+  icons: {
+    icon: "/assets/favicon.png",
+    apple: "/assets/favicon.png",
+  },
 };
 
 export default function RootLayout({

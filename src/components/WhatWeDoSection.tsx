@@ -1,119 +1,100 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { motion } from "framer-motion";
 
-const blocks = [
-  { 
-    title: "Estrutura Comercial", 
-    description: "Desenvolvemos processos de vendas previsíveis, esteiras de conversão e mecanismos de tração que sustentam a aquisição de clientes." 
+const items = [
+  {
+    num: "01",
+    title: "Posicionamento",
+    description: "Construção de percepção, narrativa e direção da marca."
   },
-  { 
-    title: "Produtos & Posicionamento", 
-    description: "Desenhamos ofertas, otimizamos o portfólio de produtos e refinamos a mensagem para que a percepção de valor seja imediata e incontestável." 
+  {
+    num: "02",
+    title: "Produtos",
+    description: "Estruturação de ofertas, esteira e validação."
   },
-  { 
-    title: "Operação & Escala", 
-    description: "Implementamos infraestrutura, processos de gestão e estruturamos equipes para que o negócio cresça de forma eficiente." 
+  {
+    num: "03",
+    title: "Comercial",
+    description: "Funis, CRM, aplicação e operação de vendas."
+  },
+  {
+    num: "04",
+    title: "Infraestrutura",
+    description: "Processos, sistemas e organização operacional."
   }
 ];
 
 const WhatWeDoSection = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  
-  // Track scroll progress as the section enters the viewport
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "center center"]
-  });
-
-  // Cinematic Scroll Transitions for the Header
-  const titleScale = useTransform(scrollYProgress, [0, 1], [1.3, 1]);
-  const titleOpacity = useTransform(scrollYProgress, [0, 0.8, 1], [0, 0.5, 1]);
-  const titleY = useTransform(scrollYProgress, [0, 1], [150, 0]);
-  const titleRotateX = useTransform(scrollYProgress, [0, 1], [30, 0]);
-
   return (
-    <section ref={sectionRef} className="relative bg-background overflow-hidden py-32 md:py-48" style={{ perspective: "1000px" }}>
-      {/* Ambient background that flares on scroll */}
-      <motion.div 
-        style={{ opacity: scrollYProgress }}
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[1px] bg-gradient-to-r from-transparent via-accent/40 to-transparent" 
-      />
-      <motion.div 
-        style={{ opacity: scrollYProgress, scale: titleScale }}
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-accent/[0.04] blur-[150px] rounded-full pointer-events-none" 
-      />
+    <section className="relative bg-background overflow-hidden py-36 md:py-48">
+      
+      {/* Subtle top edge transition */}
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
       <div className="cinematic-container relative z-10">
         
-        {/* Scroll-Driven Immersive Header */}
-        <motion.div
-          style={{ 
-            scale: titleScale, 
-            opacity: titleOpacity, 
-            y: titleY, 
-            rotateX: titleRotateX,
-            transformOrigin: "bottom center"
-          }}
-          className="mb-32 flex flex-col items-center text-center gap-6"
-        >
-          {/* Laser Guide Line */}
-          <motion.div 
-            style={{ scaleY: scrollYProgress, originY: 0 }}
-            className="w-[1px] h-32 bg-gradient-to-b from-transparent via-accent/40 to-transparent mb-4" 
-          />
-          
-          <span className="text-[11px] uppercase tracking-[0.5em] text-accent font-mono">
-            A Engenharia
-          </span>
-          
-          <h2 className="text-[clamp(44px,7vw,96px)] leading-[0.9] tracking-[-0.05em] font-light text-foreground">
-            O que fazemos.
-          </h2>
-          
-          <p className="max-w-[480px] text-muted text-[16px] md:text-[18px] font-light mt-4 leading-relaxed">
-            Arquitetura operacional profunda para negócios que não podem falhar na execução.
-          </p>
-        </motion.div>
+        {/* Section Header with generous breathing space */}
+        <div className="mb-24 md:mb-32">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1 }}
+            className="flex flex-col gap-4"
+          >
+            <span className="text-[10px] uppercase tracking-[0.4em] text-accent font-mono font-medium">
+              Especialização
+            </span>
+            <h2 className="text-[clamp(36px,5vw,56px)] leading-[1.05] tracking-[-0.04em] font-light text-[#F5F5F5]">
+              O que organizamos.
+            </h2>
+          </motion.div>
+        </div>
 
-        {/* The List (Editorial Layout) */}
+        {/* Minimalist Rows */}
         <div className="flex flex-col border-t border-white/5">
-          {blocks.map((block, i) => (
+          {items.map((item, idx) => (
             <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="group relative flex flex-col md:flex-row md:items-center py-12 md:py-16 border-b border-white/5 hover:border-white/20 transition-colors duration-500 overflow-hidden"
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.8, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="group relative flex flex-col md:flex-row md:items-center py-14 md:py-16 border-b border-white/5 hover:border-white/10 transition-colors duration-500 overflow-hidden"
             >
-              {/* Animated Hover Background */}
-              <div className="absolute inset-0 bg-gradient-to-r from-accent/0 via-accent/[0.03] to-transparent translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none" />
+              
+              {/* Subtle Blue Glow Hover Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-accent/[0.015] via-transparent to-transparent translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none" />
+              
+              {/* Blue micro glow point on hover */}
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-0 bg-accent rounded-full group-hover:h-8 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
 
-              {/* Number */}
-              <div className="md:w-[15%] mb-6 md:mb-0">
-                <span className="font-mono text-[12px] md:text-[14px] text-muted group-hover:text-accent transition-colors duration-500">
-                  0{i + 1}
+              {/* Number Column */}
+              <div className="w-16 mb-4 md:mb-0 shrink-0 select-none">
+                <span className="font-mono text-[12px] text-[#7A7A7A] group-hover:text-accent transition-colors duration-500">
+                  {item.num}
                 </span>
               </div>
-              
-              {/* Title */}
-              <div className="md:w-[45%] mb-6 md:mb-0">
-                <h3 className="text-[28px] md:text-[40px] font-light text-foreground tracking-[-0.03em] group-hover:translate-x-4 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                  {block.title}
+
+              {/* Title Column */}
+              <div className="md:w-[35%] mb-4 md:mb-0 pr-6">
+                <h3 className="text-[22px] md:text-[28px] font-light text-[#F5F5F5] tracking-[-0.02em] group-hover:translate-x-3 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
+                  {item.title}
                 </h3>
               </div>
-              
-              {/* Description */}
-              <div className="md:w-[40%]">
-                <p className="text-[15px] md:text-[16px] text-foreground-secondary/60 font-light leading-relaxed group-hover:text-foreground-secondary transition-colors duration-500">
-                  {block.description}
+
+              {/* Description Column */}
+              <div className="flex-1 md:pl-8">
+                <p className="text-[14px] md:text-[16px] text-[#7A7A7A] group-hover:text-[#E5E5E5] font-light leading-relaxed transition-colors duration-500 max-w-xl">
+                  {item.description}
                 </p>
               </div>
+
             </motion.div>
           ))}
         </div>
+
       </div>
     </section>
   );

@@ -1,115 +1,92 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { motion } from "framer-motion";
 
 const profiles = [
-  { t: "Experts", d: "Que monetizam conhecimento e precisam de estrutura para escalar." },
-  { t: "Coprodutores", d: "Que gerenciam múltiplos projetos e buscam processos e previsibilidade." },
-  { t: "Marcas pessoais", d: "Que querem se posicionar com autoridade incontestável no digital." },
-  { t: "Operações digitais", d: "Com time enxuto que precisa operar acima da sua capacidade atual." },
-  { t: "Negócios com audiência", d: "Que já possuem atenção e buscam monetizar através de infraestrutura." }
+  {
+    num: "01",
+    title: "Experts",
+    description: "Que possuem conhecimento, audiência ou autoridade e precisam de estrutura."
+  },
+  {
+    num: "02",
+    title: "Marcas pessoais",
+    description: "Que buscam consolidar percepção e narrativa com autoridade inquestionável."
+  },
+  {
+    num: "03",
+    title: "Coprodutores",
+    description: "Que gerenciam múltiplos projetos e buscam processos e previsibilidade."
+  },
+  {
+    num: "04",
+    title: "Operações digitais",
+    description: "Com time enxuto que precisa de infraestrutura robusta para crescer."
+  }
 ];
 
 const WhoWeWorkWithSection = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "center center"]
-  });
-
-  // Cinematic Left Column Scroll Transitions
-  const leftX = useTransform(scrollYProgress, [0, 1], [-80, 0]);
-  const leftOpacity = useTransform(scrollYProgress, [0, 0.8, 1], [0, 0.5, 1]);
-  const titleRotateY = useTransform(scrollYProgress, [0, 1], [25, 0]);
-
   return (
-    <section ref={sectionRef} className="relative bg-background border-t border-white/5 overflow-hidden py-32 md:py-48" style={{ perspective: "1000px" }}>
-      {/* Ambient background linked to scroll */}
-      <motion.div 
-        style={{ opacity: scrollYProgress }}
-        className="absolute inset-0 pointer-events-none flex justify-center items-center"
-      >
-         <div className="w-[1000px] h-[500px] bg-accent/[0.02] blur-[200px] rounded-full" />
-      </motion.div>
+    <section className="relative bg-[#050505] border-t border-white/5 overflow-hidden py-36 md:py-48">
+      
+      {/* Subtle background gradient flare */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-accent/[0.015] blur-[150px] rounded-full pointer-events-none" />
 
       <div className="cinematic-container relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
-          
-          {/* Left Column: Sticky Title & Requirement (Scroll Driven) */}
-          <div className="lg:col-span-5 lg:sticky lg:top-40 self-start">
+        
+        {/* Section Header with generous breathing space */}
+        <div className="mb-24 md:mb-32">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1 }}
+            className="flex flex-col gap-4"
+          >
+            <span className="text-[10px] uppercase tracking-[0.4em] text-accent font-mono font-medium">
+              Segmentos
+            </span>
+            <h2 className="text-[clamp(36px,5vw,56px)] leading-[1.05] tracking-[-0.04em] font-light text-[#F5F5F5] max-w-xl">
+              Construído para quem <br className="hidden sm:block" />
+              <span className="text-[#7A7A7A] font-extralight">já começou a crescer.</span>
+            </h2>
+          </motion.div>
+        </div>
+
+        {/* 4 Minimalist Blocks Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          {profiles.map((profile, idx) => (
             <motion.div
-              style={{ 
-                x: leftX, 
-                opacity: leftOpacity, 
-                rotateY: titleRotateY,
-                transformOrigin: "left center" 
-              }}
+              key={idx}
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.8, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
+              className="group flex flex-col pt-8 border-t border-white/5 hover:border-white/15 transition-colors duration-500 min-h-[220px]"
             >
-              <div className="flex items-center gap-4 mb-8">
-                <motion.div 
-                  style={{ scaleX: scrollYProgress, originX: 0 }}
-                  className="h-[1px] w-12 bg-accent"
-                />
-                <span className="text-[12px] uppercase tracking-[0.4em] text-accent font-medium">
-                  O Padrão Vértice
+              
+              {/* Profile Number & Tiny Accent */}
+              <div className="flex items-center justify-between mb-8 select-none">
+                <span className="font-mono text-[11px] text-[#7A7A7A] group-hover:text-accent transition-colors duration-500">
+                  {profile.num}
                 </span>
+                <div className="w-[3px] h-[3px] rounded-full bg-white/10 group-hover:bg-accent/40 transition-colors duration-500" />
               </div>
-              
-              <h2 className="text-[clamp(44px,6vw,72px)] leading-[0.95] tracking-[-0.04em] font-light mb-12">
-                Para quem <br />
-                <span className="text-foreground-secondary/40 font-thin">construímos.</span>
-              </h2>
-              
-              {/* Premium Requirement Box */}
-              <div className="relative p-8 rounded-2xl bg-surface/20 border border-white/5 backdrop-blur-md overflow-hidden">
-                 <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                 
-                 <p className="text-[16px] text-foreground-secondary/80 font-light leading-relaxed relative z-10">
-                   <strong className="text-foreground font-medium block mb-3 text-[18px]">Apenas para quem já começou.</strong>
-                   Se você ainda está descobrindo seu posicionamento ou validando a sua primeira oferta, este não é o momento. A nossa infraestrutura foi desenhada para quem já construiu algo real e agora precisa de escala.
-                 </p>
-                 
-                 <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-accent/10 blur-[50px] rounded-full" />
-              </div>
+
+              {/* Profile Title */}
+              <h3 className="text-[18px] md:text-[20px] font-medium text-[#F5F5F5] tracking-tight mb-4 group-hover:text-white transition-colors">
+                {profile.title}
+              </h3>
+
+              {/* Profile Phrase Description */}
+              <p className="text-[13px] md:text-[14px] text-[#7A7A7A] group-hover:text-[#B0B0B0] font-light leading-relaxed transition-colors duration-500 mt-auto">
+                {profile.description}
+              </p>
 
             </motion.div>
-          </div>
-
-          {/* Right Column: Staggered Bento Grid */}
-          <div className="lg:col-span-7 mt-12 lg:mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {profiles.map((profile, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.9, y: 40 }}
-                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.8, delay: i * 0.15, ease: [0.16, 1, 0.3, 1] }}
-                  className={`group relative p-8 rounded-2xl border border-white/5 bg-surface/10 hover:bg-surface/30 transition-all duration-700 overflow-hidden ${
-                    i % 2 !== 0 ? 'md:translate-y-12' : '' 
-                  }`}
-                >
-                  <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/5 transition-colors duration-700" />
-                  
-                  <div className="relative z-10">
-                     <span className="block text-[12px] font-mono text-muted mb-8 group-hover:text-accent transition-colors duration-500">
-                       0{i+1}
-                     </span>
-                     <h3 className="text-[22px] md:text-[26px] font-light text-foreground mb-4 tracking-[-0.02em] group-hover:translate-x-2 transition-transform duration-500">
-                       {profile.t}
-                     </h3>
-                     <p className="text-[14px] md:text-[15px] text-foreground-secondary/60 font-light leading-relaxed group-hover:text-foreground-secondary/90 transition-colors duration-500">
-                       {profile.d}
-                     </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
+          ))}
         </div>
+
       </div>
     </section>
   );

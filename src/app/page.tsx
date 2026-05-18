@@ -4,7 +4,6 @@ import { useState } from "react";
 import HeroSection from "@/components/HeroSection";
 import WhatWeDoSection from "@/components/WhatWeDoSection";
 import WhoWeWorkWithSection from "@/components/WhoWeWorkWithSection";
-import BehindScenesSection from "@/components/BehindScenesSection";
 import ApplySection from "@/components/ApplySection";
 import LoadingState from "@/components/LoadingState";
 
@@ -27,8 +26,6 @@ export default function Home() {
         <WhatWeDoSection />
 
         <WhoWeWorkWithSection />
-        
-        <BehindScenesSection />
         
         <ApplySection />
         
