@@ -171,7 +171,7 @@ const ApplySection = () => {
   // Variants for Framer Motion horizontal slider transition
   const sliderVariants = {
     initial: { opacity: 0, x: 40 },
-    animate: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+    animate: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
     exit: { opacity: 0, x: -40, transition: { duration: 0.4 } }
   };
 
